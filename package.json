@@ -1,0 +1,23 @@
+{
+  "name": "neonmob-bot",
+  "version": "1.0.0",
+  "description": "Neonmob utility for future art collection idea.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mtso/neonmob-bot.git"
+  },
+  "author": "Matthew Tso",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mtso/neonmob-bot/issues"
+  },
+  "homepage": "https://github.com/mtso/neonmob-bot",
+  "dependencies": {
+    "htmlparser": "^1.7.7",
+    "jsdom": "^9.5.0"
+  }
+}
