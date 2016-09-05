@@ -17,7 +17,11 @@
   },
   "homepage": "https://github.com/mtso/neonmob-bot",
   "dependencies": {
+    "cheerio": "^0.22.0",
+    "express": "^4.14.0",
     "htmlparser": "^1.7.7",
-    "jsdom": "^9.5.0"
+    "jsdom": "^9.5.0",
+    "nightmare": "^2.7.0",
+    "request": "^2.74.0"
   }
 }
