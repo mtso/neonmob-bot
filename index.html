@@ -14,18 +14,30 @@
     <p>Enter your neonmob username to reconstruct the world and receive your reward.</p>
     <input type="text" id="username">
     <button onclick="submitAction()">Submit</button>
+    <div id="throbber"></div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://raw.githubusercontent.com/aino/throbber.js/master/throbber.js"></script>
+
     <script>
+
       function submitAction() {
+
         var name = document.getElementById('username').value;
-        console.log('submitted ' + name);
+        var throb = Throbber({
+          color: 'black',
+          padding: 20,
+          fade: 200
+        }).appendTo( document.getElementById('throbber') ).start();
 
         $.ajax({
           url: 'submit',
           type: 'POST',
           data: 'name=' + name,
-          success: function(string) { console.log(string); },
+          success: function(string) { 
+            console.log(string); 
+            throb.toggle(); 
+          },
           error: function(error) { console.log(error); }
         });
       }

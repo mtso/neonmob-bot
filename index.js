@@ -1,6 +1,6 @@
 const Nightmare = require('nightmare');
 const app       = require('express')();
-app.use(require('body-parser').urlencoded());
+app.use(require('body-parser').urlencoded({ extended: true }));
 
 var completionData = {
   collected: {
@@ -17,16 +17,14 @@ const selector = {
   variant : '.selected .variant-count'
 }
 
-
 // const config = {
-//   url : 'https://www.neonmob.com/*/collection/7-deadly-sins/', // /collection/welcome-to-neonmob/
+//   url : 'https://www.neonmob.com/*/collection/7-deadly-sins/',
 //   total : {
 //     collected : 7,
 //     chase : 1,
 //     variant : 8
 //   }
 // }
-
 
 const config = {
   url : 'https://www.neonmob.com/*/collection/tik-tok-time/',
@@ -41,40 +39,12 @@ function collectData(callback, url, selector) {
   var nightmare = Nightmare({ show: false, waitTimeout: 30000, gotoTimeout: 30000 })
   nightmare
     .goto(url)
-    // .wait('#neonmob-app')
-    // .wait('#collection-view-window')
     .wait('ul.selected')
-    // .wait(function(selector) {
-
-    //   if (document.querySelector(selector.tally)) { /*&& 
-    //       document.querySelector(selector.chase) &&
-    //       document.querySelector(selector.variant)) { /**/
-    //     if (document.querySelector(selector.chase)) {
-    //       return true;
-    //       // if (document.querySelector(selector.variant)) {
-    //       //   return true;
-    //       // }
-    //     }
-
-        
-    //   }
-    //   return false;
-      
-
-    //   if (document.querySelector(selector.tally) ){ /*&& 
-    //       document.querySelector(selector.chase) &&
-    //       document.querySelector(selector.variant)) { /**/
-    //     return true;
-    //   } else {
-    //     return false;
-    //   }
-
-    // }, selector)
     .evaluate(function(selector) {
       
-      var tallyHTML = null;
-      var chaseHTML = null;
-      var variantHTML = null;
+      var tallyHTML = null
+        , chaseHTML = null
+        , variantHTML = null;
 
       if (document.querySelector(selector.tally)) {
         tallyHTML = document.querySelector(selector.tally).innerHTML;
@@ -86,25 +56,11 @@ function collectData(callback, url, selector) {
         variantHTML = document.querySelector(selector.variant).innerHTML;
       }
 
-      // var tallyHTML = document.querySelector(selector.tally);
-      // var chaseHTML = document.querySelector(selector.chase).innerHTML;
-      // var variantHTML = document.querySelector(selector.variant).innerHTML;
-
       return {
         tally : tallyHTML,
         chase : chaseHTML,
         variant : variantHTML,
       };
-
-      // var tallyHTML = document.querySelector(selector.tally).innerHTML;
-      // var chaseHTML = document.querySelector(selector.chase).innerHTML;
-      // var variantHTML = document.querySelector(selector.variant).innerHTML;
-
-      // return {
-      //   tally : tallyHTML,
-      //   chase : chaseHTML,
-      //   variant : variantHTML,
-      // };
 
     }, selector)
     .end()
@@ -152,9 +108,9 @@ app.post('/submit', function(req, res) {
   var name = req.body.name;
   var url = config.url.replace('*', name);
 
-  function sendData() {
-    res.send(completionData);
-  }
+  // function sendData() {
+  //   res.send(completionData);
+  // }
 
   collectData(function(rawData) {
 
@@ -179,14 +135,9 @@ app.post('/submit', function(req, res) {
       completionData.variant = parseInt(variantString, 10);
     }
 
-    console.log(completionData);
-
     res.send(completionData);
 
   }, url, selector);
-  
-  // console.log(req.body);
-  // res.send(completionData);
 
 })
 
