@@ -17,10 +17,21 @@ const selector = {
   variant : '.selected .variant-count'
 }
 
+
+// const config = {
+//   url : 'https://www.neonmob.com/*/collection/7-deadly-sins/', // /collection/welcome-to-neonmob/
+//   total : {
+//     collected : 7,
+//     chase : 1,
+//     variant : 8
+//   }
+// }
+
+
 const config = {
-  url : 'https://www.neonmob.com/*/collection/7-deadly-sins/', // /collection/welcome-to-neonmob/
+  url : 'https://www.neonmob.com/*/collection/tik-tok-time/',
   total : {
-    collected : 7,
+    visible : 29,
     chase : 1,
     variant : 8
   }
@@ -51,19 +62,19 @@ function collectData(callback, url, selector) {
 };
 
 function processData(rawData) {
-  var tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
-  var completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
+  const tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
+  const completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
 
-  rawData.tally   = rawData.tally.replace(tallyRegex, '');
-  rawData.chase   = rawData.chase.replace(completeRegex, '');
-  rawData.variant = rawData.variant.replace(completeRegex, '');
+  tallyStrings  = rawData.tally.replace(tallyRegex, '').split('/');
+  chaseString   = rawData.chase.replace(completeRegex, '');
+  variantString = rawData.variant.replace(completeRegex, '');
 
-  rawData.chase   = parseInt(rawData.chase, 10);
-  rawData.variant = parseInt(rawData.variant, 10);
+  completionData.collected.count = parseInt(tallyStrings[0], 10);
+  completionData.collected.total = parseInt(tallyStrings[1], 10);
+  completionData.chase = parseInt(chaseString, 10);
+  completionData.variant = parseInt(variantString, 10);
 
-  rawData.tally   = rawData.tally.split('/')[0];
-
-  console.log(rawData);
+  console.log(completionData);
 }
 
 var name = 'mtso';
