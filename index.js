@@ -1,121 +1,72 @@
 const Nightmare = require('nightmare');
-const $         = require('jQuery');
 
-var nightmare = Nightmare({ show: true, waitTimeout: 60000 });
+var nightmare = Nightmare({ show: false, waitTimeout: 1200000, gotoTimeout: 1200000 });
 
-// https://www.neonmob.com/mtso/collection/welcome-to-neonmob/
-// https://www.neonmob.com/mtso/collection/7-deadly-sins/
+var completionData = {
+  collected: {
+    count: null,
+    total: null
+  },
+  chase: null,
+  variant: null
+};
 
-var url = 'https://www.neonmob.com/mtso/collection/7-deadly-sins/';
-
-/*
-nightmare
-  .goto(url)
-  .wait('#neonmob-app')
-  .evaluate(function() {
-    return document.querySelector('.selected .collected-tally').innerHTML;
-  })
-  .end()
-  .then(function(result) {
-    console.log(result);
-  })
-  .catch(function(error) {
-    console.error('Search failed: ', error);
-  });
-
-nightmare
-  .goto(url)
-  .wait('#neonmob-app')
-  .evaluate(function() {
-    return document.querySelector('.selected .variant-count').innerHTML;
-  })
-  .end()
-  .then(function(result) {
-    console.log(result);
-  })
-  .catch(function(error) {
-    console.error('Search failed: ', error);
-  });
-/**/
-
-/*
-function getTally() {
-  nightmare
-    .goto(url)
-    .wait('#neonmob-app')
-    .evaluate(function() {
-      return document.querySelector('.selected .collected-tally').innerHTML;
-    })
-    .end()
-    .then(function(result) {
-      console.log(result);
-      return result;
-    })
-    .catch(function(error) {
-      console.error('Search failed: ', error);
-    });
+const selector = {
+  tally : '.selected .collected-tally',
+  chase : '.selected .chase-count',
+  variant : '.selected .variant-count'
 }
 
-function getChase() {
-  nightmare
-    .goto(url)
-    .wait('#neonmob-app')
-    .evaluate(function() {
-      return document.querySelector('.selected .chase-count').innerHTML;
-    })
-    .end()
-    .then(function(result) {
-      console.log(result);
-      return result;
-    })
-    .catch(function(error) {
-      console.error('Search failed: ', error);
-    });
+const config = {
+  url : 'https://www.neonmob.com/*/collection/7-deadly-sins/', // /collection/welcome-to-neonmob/
+  total : {
+    collected : 7,
+    chase : 1,
+    variant : 8
+  }
 }
 
-function getVariant() {
+function collectData(callback, url, selector) {
   nightmare
-    .goto(url)
-    .wait('#neonmob-app')
-    .evaluate(function() {
-      return document.querySelector('.selected .variant-count').innerHTML;
-    })
-    .end()
-    .then(function(result) {
-      console.log(result);
-      return result;
-    })
-    .catch(function(error) {
-      console.error('Search failed: ', error);
-    });
-}
-/**/
-
-function innerHtmlWithSelector(callback, url, selector) {
-  // nightmare
-  (new Nightmare({ show: false, waitTimeout: 60000 }))
     .goto(url)
     .wait('#neonmob-app')
     .evaluate(function(selector) {
-      return document.querySelector(selector).innerHTML;
+
+      var tallyHTML = document.querySelector(selector.tally).innerHTML;
+      var chaseHTML = document.querySelector(selector.chase).innerHTML;
+      var variantHTML = document.querySelector(selector.variant).innerHTML;
+
+      return {
+        tally : tallyHTML,
+        chase : chaseHTML,
+        variant : variantHTML,
+      };
+
     }, selector)
     .end()
-    .then(function(result) {
-      // console.log(result);
-      // return result;
-      callback(result);
-    })
+    .then(callback)
     .catch(function(error) {
       console.error('Search failed: ', error);
     });
 };
 
-function log(string) {
-  console.log(string);
+function processData(rawData) {
+  var tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
+  var completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
+
+  rawData.tally   = rawData.tally.replace(tallyRegex, '');
+  rawData.chase   = rawData.chase.replace(completeRegex, '');
+  rawData.variant = rawData.variant.replace(completeRegex, '');
+
+  rawData.chase   = parseInt(rawData.chase, 10);
+  rawData.variant = parseInt(rawData.variant, 10);
+
+  rawData.tally   = rawData.tally.split('/')[0];
+
+  console.log(rawData);
 }
 
+var name = 'mtso';
+var url = config.url.replace('*', name);
 
-
-innerHtmlWithSelector(log, url, '.selected .variant-count');
-innerHtmlWithSelector(log, url, '.selected .chase-count');
-innerHtmlWithSelector(log, url, '.selected .collected-tally');
+collectData(processData, url, selector);
