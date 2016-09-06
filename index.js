@@ -1,8 +1,6 @@
 const Nightmare = require('nightmare');
 const app       = require('express')();
 
-// var nightmare = Nightmare({ show: false, waitTimeout: 1200000, gotoTimeout: 1200000 });
-
 var completionData = {
   collected: {
     count: null,
@@ -38,35 +36,74 @@ const config = {
   }
 }
 
-// var name = 'mtso';
-// var url = config.url.replace('*', name);
-
 function collectData(callback, url, selector) {
   var nightmare = Nightmare({ show: false, waitTimeout: 30000, gotoTimeout: 30000 })
   nightmare
     .goto(url)
-    .wait(function(selector) {
+    // .wait('#neonmob-app')
+    // .wait('#collection-view-window')
+    .wait('ul.selected')
+    // .wait(function(selector) {
 
-      if (document.querySelector(selector.tally) && 
-          document.querySelector(selector.chase) &&
-          document.querySelector(selector.variant)) {
-        return true;
-      } else {
-        return false;
+    //   if (document.querySelector(selector.tally)) { /*&& 
+    //       document.querySelector(selector.chase) &&
+    //       document.querySelector(selector.variant)) { /**/
+    //     if (document.querySelector(selector.chase)) {
+    //       return true;
+    //       // if (document.querySelector(selector.variant)) {
+    //       //   return true;
+    //       // }
+    //     }
+
+        
+    //   }
+    //   return false;
+      
+
+    //   if (document.querySelector(selector.tally) ){ /*&& 
+    //       document.querySelector(selector.chase) &&
+    //       document.querySelector(selector.variant)) { /**/
+    //     return true;
+    //   } else {
+    //     return false;
+    //   }
+
+    // }, selector)
+    .evaluate(function(selector) {
+      
+      var tallyHTML = null;
+      var chaseHTML = null;
+      var variantHTML = null;
+
+      if (document.querySelector(selector.tally)) {
+        tallyHTML = document.querySelector(selector.tally).innerHTML;
+      }
+      if (document.querySelector(selector.chase)) {
+        chaseHTML = document.querySelector(selector.chase).innerHTML;
+      }
+      if (document.querySelector(selector.variant)) {
+        variantHTML = document.querySelector(selector.variant).innerHTML;
       }
 
-    }, selector)
-    .evaluate(function(selector) {
-
-      var tallyHTML = document.querySelector(selector.tally).innerHTML;
-      var chaseHTML = document.querySelector(selector.chase).innerHTML;
-      var variantHTML = document.querySelector(selector.variant).innerHTML;
+      // var tallyHTML = document.querySelector(selector.tally);
+      // var chaseHTML = document.querySelector(selector.chase).innerHTML;
+      // var variantHTML = document.querySelector(selector.variant).innerHTML;
 
       return {
         tally : tallyHTML,
         chase : chaseHTML,
         variant : variantHTML,
       };
+
+      // var tallyHTML = document.querySelector(selector.tally).innerHTML;
+      // var chaseHTML = document.querySelector(selector.chase).innerHTML;
+      // var variantHTML = document.querySelector(selector.variant).innerHTML;
+
+      // return {
+      //   tally : tallyHTML,
+      //   chase : chaseHTML,
+      //   variant : variantHTML,
+      // };
 
     }, selector)
     .end()
@@ -77,28 +114,45 @@ function collectData(callback, url, selector) {
 };
 
 function processData(rawData) {
-  if (rawData == null) {
-    console.log(rawData);
-    collectData(processData, url, selector);
-    return; 
-  }
+  // if (rawData == null) {
+  //   console.log(rawData);
+  //   collectData(processData, url, selector);
+  //   return; 
+  // }
 
   const tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
   const completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
+  
+  var tallyStrings;
+  var chaseString;
+  var variantString;
 
-  tallyStrings  = rawData.tally.replace(tallyRegex, '').split('/');
-  chaseString   = rawData.chase.replace(completeRegex, '');
-  variantString = rawData.variant.replace(completeRegex, '');
+  if (rawData.tally) {
+    tallyStrings = rawData.tally.replace(tallyRegex, '').split('/');
+    completionData.collected.count = parseInt(tallyStrings[0], 10);
+    completionData.collected.total = parseInt(tallyStrings[1], 10);
+  }
+  if (rawData.chase) {
+    chaseString = rawData.chase.replace(completeRegex, '');
+    completionData.chase = parseInt(chaseString, 10);
+  }
+  if (rawData.variant) {
+    variantString = rawData.variant.replace(completeRegex, '');
+    completionData.variant = parseInt(variantString, 10);
+  }
 
-  completionData.collected.count = parseInt(tallyStrings[0], 10);
-  completionData.collected.total = parseInt(tallyStrings[1], 10);
-  completionData.chase = parseInt(chaseString, 10);
-  completionData.variant = parseInt(variantString, 10);
+  // tallyStrings  = rawData.tally.replace(tallyRegex, '').split('/');
+  // chaseString   = rawData.chase.replace(completeRegex, '');
+  // variantString = rawData.variant.replace(completeRegex, '');
+
+  // completionData.collected.count = parseInt(tallyStrings[0], 10);
+  // completionData.collected.total = parseInt(tallyStrings[1], 10);
+  // completionData.chase = parseInt(chaseString, 10);
+  // completionData.variant = parseInt(variantString, 10);
 
   console.log(completionData);
 }
 
-// collectData(processData, url, selector);
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
