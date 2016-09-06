@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
-
   <head>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Neonmob Bot</title>
     <style>
       body {
         font: 400 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
@@ -10,25 +11,28 @@
   </head>
 
   <body>
-    <h3>Congratulations!</h3>
-    <p>Enter your neonmob username to reconstruct the world and receive your reward.</p>
+    <!-- <h3>Congratulations!</h3>
+    <p>Enter your neonmob username to reconstruct the world and receive your reward.</p> -->
+    <p>Enter your neonmob username to get data about your Tik Tok Time collection.</p>
     <input type="text" id="username">
     <button onclick="submitAction()">Submit</button>
     <div id="throbber"></div>
+    <div id="collection-data"></div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://raw.githubusercontent.com/aino/throbber.js/master/throbber.js"></script>
 
     <script>
+      var throb = Throbber({
+          color: 'black',
+          padding: 20,
+          fade: 200
+        }).appendTo( document.getElementById('throbber') );
 
       function submitAction() {
 
         var name = document.getElementById('username').value;
-        var throb = Throbber({
-          color: 'black',
-          padding: 20,
-          fade: 200
-        }).appendTo( document.getElementById('throbber') ).start();
+        throb.toggle();
 
         $.ajax({
           url: 'submit',
@@ -37,6 +41,7 @@
           success: function(string) { 
             console.log(string); 
             throb.toggle(); 
+            document.getElementById('collection-data').innerHTML = JSON.stringify(string);
           },
           error: function(error) { console.log(error); }
         });

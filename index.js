@@ -107,7 +107,7 @@ app.post('/submit', function(req, res) {
 
   var name = req.body.name;
   var url = config.url.replace('*', name);
-
+  console.log(url);
   // function sendData() {
   //   res.send(completionData);
   // }
