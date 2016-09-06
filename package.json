@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/mtso/neonmob-bot",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "jquery": "^3.1.0",
     "nightmare": "^2.7.0"

@@ -1,5 +1,6 @@
 const Nightmare = require('nightmare');
 const app       = require('express')();
+app.use(require('body-parser').urlencoded());
 
 var completionData = {
   collected: {
@@ -114,11 +115,6 @@ function collectData(callback, url, selector) {
 };
 
 function processData(rawData) {
-  // if (rawData == null) {
-  //   console.log(rawData);
-  //   collectData(processData, url, selector);
-  //   return; 
-  // }
 
   const tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
   const completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
@@ -141,32 +137,58 @@ function processData(rawData) {
     completionData.variant = parseInt(variantString, 10);
   }
 
-  // tallyStrings  = rawData.tally.replace(tallyRegex, '').split('/');
-  // chaseString   = rawData.chase.replace(completeRegex, '');
-  // variantString = rawData.variant.replace(completeRegex, '');
-
-  // completionData.collected.count = parseInt(tallyStrings[0], 10);
-  // completionData.collected.total = parseInt(tallyStrings[1], 10);
-  // completionData.chase = parseInt(chaseString, 10);
-  // completionData.variant = parseInt(variantString, 10);
-
   console.log(completionData);
 }
 
 
 app.get('/', function(req, res) {
+
   res.sendFile(__dirname + '/index.html');
 
-  if (req.query['username']) {
-
-    console.log(req.query['username']);
-
-    var name = req.query['username'];
-    var url = config.url.replace('*', name);
-
-    collectData(processData, url, selector);
-  }
 });
+
+app.post('/submit', function(req, res) {
+
+  var name = req.body.name;
+  var url = config.url.replace('*', name);
+
+  function sendData() {
+    res.send(completionData);
+  }
+
+  collectData(function(rawData) {
+
+    const tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
+    const completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
+    
+    var tallyStrings;
+    var chaseString;
+    var variantString;
+
+    if (rawData.tally) {
+      tallyStrings = rawData.tally.replace(tallyRegex, '').split('/');
+      completionData.collected.count = parseInt(tallyStrings[0], 10);
+      completionData.collected.total = parseInt(tallyStrings[1], 10);
+    }
+    if (rawData.chase) {
+      chaseString = rawData.chase.replace(completeRegex, '');
+      completionData.chase = parseInt(chaseString, 10);
+    }
+    if (rawData.variant) {
+      variantString = rawData.variant.replace(completeRegex, '');
+      completionData.variant = parseInt(variantString, 10);
+    }
+
+    console.log(completionData);
+
+    res.send(completionData);
+
+  }, url, selector);
+  
+  // console.log(req.body);
+  // res.send(completionData);
+
+})
 
 app.listen(process.env.PORT || 3000, function() {
   console.log('Listening on *:' + (process.env.PORT || 3000));

@@ -10,9 +10,26 @@
   </head>
 
   <body>
-    <form method="get">
-      <input type="text" name="username">
-      <button type="submit">Submit</button>
-    </form>
+    <h3>Congratulations!</h3>
+    <p>Enter your neonmob username to reconstruct the world and receive your reward.</p>
+    <input type="text" id="username">
+    <button onclick="submitAction()">Submit</button>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+      function submitAction() {
+        var name = document.getElementById('username').value;
+        console.log('submitted ' + name);
+
+        $.ajax({
+          url: 'submit',
+          type: 'POST',
+          data: 'name=' + name,
+          success: function(string) { console.log(string); },
+          error: function(error) { console.log(error); }
+        });
+      }
+
+    </script>
   </body>
 </html>
