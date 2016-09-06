@@ -1,40 +1,121 @@
-const express = require('express');
-const fs      = require('fs');
-const request = require('request');
-const cheerio = require('cheerio');
-const app     = express();
+const Nightmare = require('nightmare');
+const $         = require('jQuery');
 
-app.get('/', function(req, res) {
+var nightmare = Nightmare({ show: true, waitTimeout: 60000 });
 
-  // var url = 'http://www.imdb.com/title/tt1229340/';
-  var url = 'https://www.neonmob.com/mtso/collection/welcome-to-neonmob/';
+// https://www.neonmob.com/mtso/collection/welcome-to-neonmob/
+// https://www.neonmob.com/mtso/collection/7-deadly-sins/
 
-  setTimeout(function() {
-    request(url).pipe(fs.createWriteStream('saved-timeout.html'));
-  }, 30000);
+var url = 'https://www.neonmob.com/mtso/collection/7-deadly-sins/';
+
+/*
+nightmare
+  .goto(url)
+  .wait('#neonmob-app')
+  .evaluate(function() {
+    return document.querySelector('.selected .collected-tally').innerHTML;
+  })
+  .end()
+  .then(function(result) {
+    console.log(result);
+  })
+  .catch(function(error) {
+    console.error('Search failed: ', error);
+  });
+
+nightmare
+  .goto(url)
+  .wait('#neonmob-app')
+  .evaluate(function() {
+    return document.querySelector('.selected .variant-count').innerHTML;
+  })
+  .end()
+  .then(function(result) {
+    console.log(result);
+  })
+  .catch(function(error) {
+    console.error('Search failed: ', error);
+  });
+/**/
+
+/*
+function getTally() {
+  nightmare
+    .goto(url)
+    .wait('#neonmob-app')
+    .evaluate(function() {
+      return document.querySelector('.selected .collected-tally').innerHTML;
+    })
+    .end()
+    .then(function(result) {
+      console.log(result);
+      return result;
+    })
+    .catch(function(error) {
+      console.error('Search failed: ', error);
+    });
+}
+
+function getChase() {
+  nightmare
+    .goto(url)
+    .wait('#neonmob-app')
+    .evaluate(function() {
+      return document.querySelector('.selected .chase-count').innerHTML;
+    })
+    .end()
+    .then(function(result) {
+      console.log(result);
+      return result;
+    })
+    .catch(function(error) {
+      console.error('Search failed: ', error);
+    });
+}
+
+function getVariant() {
+  nightmare
+    .goto(url)
+    .wait('#neonmob-app')
+    .evaluate(function() {
+      return document.querySelector('.selected .variant-count').innerHTML;
+    })
+    .end()
+    .then(function(result) {
+      console.log(result);
+      return result;
+    })
+    .catch(function(error) {
+      console.error('Search failed: ', error);
+    });
+}
+/**/
+
+function innerHtmlWithSelector(callback, url, selector) {
+  // nightmare
+  (new Nightmare({ show: false, waitTimeout: 60000 }))
+    .goto(url)
+    .wait('#neonmob-app')
+    .evaluate(function(selector) {
+      return document.querySelector(selector).innerHTML;
+    }, selector)
+    .end()
+    .then(function(result) {
+      // console.log(result);
+      // return result;
+      callback(result);
+    })
+    .catch(function(error) {
+      console.error('Search failed: ', error);
+    });
+};
+
+function log(string) {
+  console.log(string);
+}
 
 
-  // request(url).pipe(fs.createWriteStream('saved-timeout.html'));
 
-
-  // request(url, function(error, response, html) {
-
-  //   // console.log(html);
-
-  //   if (error) { console.log(error); return; }
-    
-  //   var $ = cheerio.load(html);
-
-  //   console.log($('span.neonmob-logo-text').text());
-
-    
-
-  // })
-
-});
-
-app.listen('8081');
-
-console.log('Magic happens on port 8081');
-
-exports = module.exports = app;
+innerHtmlWithSelector(log, url, '.selected .variant-count');
+innerHtmlWithSelector(log, url, '.selected .chase-count');
+innerHtmlWithSelector(log, url, '.selected .collected-tally');
