@@ -1,6 +1,7 @@
 const Nightmare = require('nightmare');
+const app       = require('express')();
 
-var nightmare = Nightmare({ show: false, waitTimeout: 1200000, gotoTimeout: 1200000 });
+// var nightmare = Nightmare({ show: false, waitTimeout: 1200000, gotoTimeout: 1200000 });
 
 var completionData = {
   collected: {
@@ -37,10 +38,24 @@ const config = {
   }
 }
 
+// var name = 'mtso';
+// var url = config.url.replace('*', name);
+
 function collectData(callback, url, selector) {
+  var nightmare = Nightmare({ show: false, waitTimeout: 30000, gotoTimeout: 30000 })
   nightmare
     .goto(url)
-    .wait('#neonmob-app')
+    .wait(function(selector) {
+
+      if (document.querySelector(selector.tally) && 
+          document.querySelector(selector.chase) &&
+          document.querySelector(selector.variant)) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }, selector)
     .evaluate(function(selector) {
 
       var tallyHTML = document.querySelector(selector.tally).innerHTML;
@@ -62,6 +77,12 @@ function collectData(callback, url, selector) {
 };
 
 function processData(rawData) {
+  if (rawData == null) {
+    console.log(rawData);
+    collectData(processData, url, selector);
+    return; 
+  }
+
   const tallyRegex    = new RegExp('\t|\n| |<|>|[a-z]|\"|=|', 'g');
   const completeRegex = new RegExp('\t|\n| |<|>|[a-z]|\"|=|\/', 'g');
 
@@ -77,7 +98,22 @@ function processData(rawData) {
   console.log(completionData);
 }
 
-var name = 'mtso';
-var url = config.url.replace('*', name);
+// collectData(processData, url, selector);
 
-collectData(processData, url, selector);
+app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/index.html');
+
+  if (req.query['username']) {
+
+    console.log(req.query['username']);
+
+    var name = req.query['username'];
+    var url = config.url.replace('*', name);
+
+    collectData(processData, url, selector);
+  }
+});
+
+app.listen(process.env.PORT || 3000, function() {
+  console.log('Listening on *:' + (process.env.PORT || 3000));
+});
